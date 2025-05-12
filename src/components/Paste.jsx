@@ -13,105 +13,106 @@ const Paste = () => {
         paste.title.toLowerCase().includes(searchterm.toLowerCase())
     );
 
-    function handleDelete(pasteId) {
-        const confirmDelete = window.confirm("⚠️ Are you sure you want to delete this paste?");
-        if (confirmDelete) {
+    const handleDelete = (pasteId) => {
+        if (window.confirm("⚠️ Are you sure you want to delete this paste?")) {
             dispatch(removefromPaste(pasteId));
             alert("🗑️ Paste deleted successfully!");
         }
-    }
+    };
 
-    function handleCopy(pasteValue) {
+    const handleCopy = (pasteValue) => {
         navigator.clipboard.writeText(pasteValue)
             .then(() => alert("📋 Text copied to clipboard!"))
-            .catch(err => console.error("Error copying text: ", err));
-    }
+            .catch(err => console.error("Error copying text:", err));
+    };
 
-    function handleShare(pasteId) {
+    const handleShare = (pasteId) => {
         const shareableLink = `${window.location.origin}/paste/${pasteId}`;
         navigator.clipboard.writeText(shareableLink)
             .then(() => alert("🔗 Share link copied to clipboard!"))
-            .catch(err => console.error("Error copying link: ", err));
-    }
+            .catch(err => console.error("Error copying link:", err));
+    };
 
-    // Function to format the date
-    function formatDate(dateString) {
+    const formatDate = (dateString) => {
         if (!dateString) return "Unknown Date";
-    
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return "Invalid Date";
-    
-        const options = { day: 'numeric', month: 'long', year: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
-    }
+        return date.toLocaleDateString('en-US', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        });
+    };
 
     return (
-        <div className="p-6">
-            {/* Search Input */}
+        <div className="p-6 max-w-5xl mx-auto">
             <input
                 type="text"
                 value={searchterm}
-                placeholder="🔍 Search pastes..."
-                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="🔍 Search pastes..."
+                className="w-full p-3 mb-6 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
-            {/* List of Pastes */}
-            <div className="flex flex-col gap-5 mt-5">
-                {filterData.length > 0 ? (
-                    filterData.map((paste) => (
-                        <div key={paste?._id} className="border p-4 rounded-lg shadow-md bg-white relative">
-                            {/* Paste Title & Content */}
-                            <h2 className="text-lg font-semibold text-gray-800">{paste.title}</h2>
-                            <p className="text-gray-600">{paste.value}</p>
-
-                            {/* Buttons aligned to the top-right */}
-                            <div className="absolute top-2 right-2 flex gap-3">
-                                <NavLink
-                                    to={`/paste/${paste?._id}`}
-                                    className="p-2 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700"
-                                    title="View Paste"
-                                >
-                                    <FaEye />
-                                </NavLink>
-                                <button
-                                    onClick={() => handleCopy(paste?.value)}
-                                    className="p-2 bg-gray-600 text-white rounded-md shadow-md hover:bg-gray-700"
-                                    title="Copy Paste Content"
-                                >
-                                    <FaCopy />
-                                </button>
-                                <NavLink
-                                    to={`/?pasteId=${paste?._id}`}
-                                    className="p-2 bg-yellow-500 text-white rounded-md shadow-md hover:bg-yellow-600"
-                                    title="Edit Paste"
-                                >
-                                    <FaEdit />
-                                </NavLink>
-                                <button
-                                    onClick={() => handleDelete(paste?._id)}
-                                    className="p-2 bg-red-500 text-white rounded-md shadow-md hover:bg-red-600"
-                                    title="Delete Paste"
-                                >
-                                    <FaTrashAlt />
-                                </button>
-                                <button
-                                    onClick={() => handleShare(paste?._id)}
-                                    className="p-2 bg-green-600 text-white rounded-md shadow-md hover:bg-green-700"
-                                    title="Share Paste Link"
-                                >
-                                    <FaShareAlt />
-                                </button>
+            {filterData.length > 0 ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {filterData.map((paste) => (
+                        <div
+                            key={paste._id}
+                            className="relative bg-white p-5 rounded-2xl shadow hover:shadow-lg transition-shadow border border-gray-100"
+                        >
+                            <div className="mb-3">
+                                <h2 className="text-lg font-semibold text-gray-800 truncate">{paste.title}</h2>
+                                <p className="text-gray-600 mt-2 line-clamp-3">{paste.value}</p>
                             </div>
 
-                            {/* Formatted Date below buttons */}
-                            <p className="text-sm text-gray-500 absolute bottom-2 right-2">{formatDate(paste.createdAt)}</p>
+                            <div className="flex justify-between items-center mt-4">
+                                <span className="text-sm text-gray-400">{formatDate(paste.createdAt)}</span>
+
+                                <div className="flex gap-2">
+                                    <NavLink
+                                        to={`/paste/${paste._id}`}
+                                        className="p-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white"
+                                        title="View Paste"
+                                    >
+                                        <FaEye />
+                                    </NavLink>
+                                    <button
+                                        onClick={() => handleCopy(paste.value)}
+                                        className="p-2 rounded-md bg-gray-600 hover:bg-gray-700 text-white"
+                                        title="Copy Content"
+                                    >
+                                        <FaCopy />
+                                    </button>
+                                    <NavLink
+                                        to={`/?pasteId=${paste._id}`}
+                                        className="p-2 rounded-md bg-yellow-500 hover:bg-yellow-600 text-white"
+                                        title="Edit Paste"
+                                    >
+                                        <FaEdit />
+                                    </NavLink>
+                                    <button
+                                        onClick={() => handleDelete(paste._id)}
+                                        className="p-2 rounded-md bg-red-500 hover:bg-red-600 text-white"
+                                        title="Delete Paste"
+                                    >
+                                        <FaTrashAlt />
+                                    </button>
+                                    <button
+                                        onClick={() => handleShare(paste._id)}
+                                        className="p-2 rounded-md bg-green-600 hover:bg-green-700 text-white"
+                                        title="Share Paste Link"
+                                    >
+                                        <FaShareAlt />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    ))
-                ) : (
-                    <p className="text-gray-600 text-center">No pastes found!</p>
-                )}
-            </div>
+                    ))}
+                </div>
+            ) : (
+                <p className="text-gray-500 text-center mt-10 text-lg">No pastes found!</p>
+            )}
         </div>
     );
 };
